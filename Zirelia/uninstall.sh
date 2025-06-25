@@ -1,4 +1,4 @@
-#!/system/bin/sh
+#!/bin/sh
 
 #
 # Copyright (C) 2024-2025 Zexshia
@@ -16,10 +16,20 @@
 # limitations under the License.
 #
 
-# Wait Boot to Complete
-while [ -z "$(getprop sys.boot_completed)" ]; do
-	sleep 30
-done
-
-# Initiate Zirelia
-zirelia
+rm -rf /data/adb/.config/zirelia
+if [ -f $INFO ]; then
+  while read LINE; do
+    if [ "$(echo -n $LINE | tail -c 1)" == "~" ]; then
+      continue
+    elif [ -f "$LINE~" ]; then
+      mv -f $LINE~ $LINE
+    else
+      rm -f $LINE
+      while true; do
+        LINE=$(dirname $LINE)
+        [ "$(ls -A $LINE 2>/dev/null)" ] && break 1 || rm -rf $LINE
+      done
+    fi
+  done < $INFO
+  rm -f $INFO
+fi
